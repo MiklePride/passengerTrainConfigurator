@@ -43,7 +43,6 @@
                 default:
                     Console.WriteLine("Такой команды нет!");
                     break;
-
             }
 
             Console.WriteLine("Нажмите любую клавишу для продолжения...");
