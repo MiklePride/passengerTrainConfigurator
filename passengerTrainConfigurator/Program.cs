@@ -6,6 +6,7 @@
         Operator tripOperator = new Operator();
 
         bool isWork = true;
+        const int Key1 = 1, Key2 = 2, Key3 = 3, Key4 = 4, Key5 = 5;
 
         Console.WriteLine("Добро пожаловать в конфигуратор поездов!");
 
@@ -21,23 +22,23 @@
             "4. Отправить рейс.\n" +
             "5. Выход.");
 
-            string userInput = Console.ReadLine();
+            int userNumber = UserUtils.GetNumber();
 
-            switch (userInput)
+            switch (userNumber)
             {
-                case "1":
+                case Key1:
                     tripOperator.CreateDirection();
                     break;
-                case "2":
+                case Key2:
                     tripOperator.TakePassengersToDirection(boxOffice);
                     break;
-                case "3":
+                case Key3:
                     tripOperator.FormTrain();
                     break;
-                case "4":
+                case Key4:
                     tripOperator.SendTrip();
                     break;
-                case "5":
+                case Key5:
                     isWork = false;
                     break;
                 default:
@@ -56,11 +57,13 @@ class Trip
 {
     private Direction _direction;
     private Train _train;
+    private int _countOfPassengers;
 
-    public Trip(Direction direction, Train train)
+    public Trip(Direction direction, Train train, int countOfPassengers)
     {
         _direction = direction;
         _train = train;
+        _countOfPassengers = countOfPassengers;
     }
 
     public void ShowInfo()
@@ -68,6 +71,7 @@ class Trip
         Console.WriteLine("Рейс:");
         _direction.ShowInfo();
         _train.ShowInfo();
+        Console.WriteLine($"Всего пассажиров: {_countOfPassengers}");
     }
 }
 
@@ -81,6 +85,8 @@ class Operator
     private bool _hasDirectionBeenCreated;
     private bool _haveTicketsBeenSold;
     private bool _isTrainFormed;
+
+    private int _countOfPassengers;
 
     public Operator()
     {
@@ -139,9 +145,9 @@ class Operator
     {
         if (_hasDirectionBeenCreated == true)
         {
-            boxOffice.SellTickets(_direction);
+            _countOfPassengers = boxOffice.SellTickets();
             _haveTicketsBeenSold = true;
-            Console.WriteLine($"На направление: {_direction.PointOfDeparture} - {_direction.PointOfDestination} купили {_direction.NumberOfPassengers} билетов.");
+            Console.WriteLine($"На направление: {_direction.PointOfDeparture} - {_direction.PointOfDestination} купили {_countOfPassengers} билетов.");
         }
         else
         {
@@ -154,7 +160,7 @@ class Operator
         if (_haveTicketsBeenSold == true && _isTrainFormed == false)
         {
             _train = new Train();
-            _train.Form(_direction);
+            _train.Form(_countOfPassengers);
             _isTrainFormed = true;
         }
         else if (_haveTicketsBeenSold == true && _isTrainFormed == true)
@@ -171,7 +177,7 @@ class Operator
     {
         if (_isTrainFormed == true)
         {
-            _trips.Add(new Trip(_direction, _train));
+            _trips.Add(new Trip(_direction, _train, _countOfPassengers));
             _hasDirectionBeenCreated = false;
             _haveTicketsBeenSold = false;
             _isTrainFormed = false;
@@ -205,28 +211,7 @@ class Operator
         }
     }
 
-    private int GetNumber()
-    {
-        bool isNumberWork = true;
-        int userNumber = 0;
-
-        while (isNumberWork)
-        {
-            bool isNumber = true;
-            string userInput = Console.ReadLine();
-
-            if (isNumber = int.TryParse(userInput, out int number))
-            {
-                userNumber = number;
-                isNumberWork = false;
-            }
-            else
-            {
-                Console.WriteLine($"Не правильный ввод данных!!!  Повторите попытку");
-            }
-        }
-        return userNumber;
-    }
+    
 
     private string GetCity()
     {
@@ -235,7 +220,7 @@ class Operator
 
         while (isCity == false)
         {
-            int numberCity = GetNumber();
+            int numberCity = UserUtils.GetNumber();
 
             if (_cities.ContainsKey(numberCity))
             {
@@ -255,7 +240,7 @@ class Direction
 {
     public string PointOfDeparture { get; private set; }
     public string PointOfDestination { get; private set; }
-    public int NumberOfPassengers { get; private set; }
+    
 
     public Direction(string pointOfDeparture, string pointOfDestination)
     {
@@ -263,14 +248,9 @@ class Direction
         PointOfDestination = pointOfDestination;
     }
 
-    public void TakePassengers(int numberOfPassengers)
-    {
-        NumberOfPassengers = numberOfPassengers;
-    }
-
     public void ShowInfo()
     {
-        Console.WriteLine($"Точка отправления: {PointOfDeparture}\nТочка назначения: {PointOfDestination}\nКуплено билетов: {NumberOfPassengers}");
+        Console.WriteLine($"Точка отправления: {PointOfDeparture}\nТочка назначения: {PointOfDestination}");
     }
 }
 
@@ -278,12 +258,12 @@ class BoxOffice
 {
     public int Ticket { get; private set; }
 
-    public void SellTickets(Direction direction)
+    public int SellTickets()
     {
         Random random = new Random();
         Ticket = random.Next(80, 300);
 
-        direction.TakePassengers(Ticket);
+        return Ticket;
     }
 }
 
@@ -308,32 +288,33 @@ class Train
         }
     }
 
-    public void Form(Direction direction)
+    public void Form(int countOfPassengers)
     {
         LittleWagon littleWagon = new LittleWagon();
         MiddleWagon middleWagon = new MiddleWagon();
         BigWagon bigWagon = new BigWagon();
 
-        while (direction.NumberOfPassengers > _numberOfseats)
+        while (countOfPassengers > _numberOfseats)
         {
             Console.Clear();
-            Console.WriteLine($"|всего мест / пассажиров| {_numberOfseats} / {direction.NumberOfPassengers}\n");
+            Console.WriteLine($"|всего мест / пассажиров| {_numberOfseats} / {countOfPassengers}\n");
             Console.WriteLine($"" +
                 $"1. Добавить {littleWagon.Type} (+{littleWagon.NumberOfSeats} мест)\n" +
                 $"2. Добавить {middleWagon.Type} (+{middleWagon.NumberOfSeats} мест)\n" +
                 $"3. Добавить {bigWagon.Type} (+{bigWagon.NumberOfSeats} мест)");
 
-            string userInput = Console.ReadLine();
+            int userInput = UserUtils.GetNumber();
+            const int Key1 = 1, Key2 = 2, Key3 = 3;
 
             switch (userInput)
             {
-                case "1":
+                case Key1:
                     AddLittleWagon();
                     break;
-                case "2":
+                case Key2:
                     AddMiddleWagon();
                     break;
-                case "3":
+                case Key3:
                     AddBigWagon();
                     break;
                 default:
@@ -341,7 +322,7 @@ class Train
                     break;
             }
         }
-        Console.WriteLine($"Мест в поезде достаточно, чтобы отправить рейс(Мест {_numberOfseats} / Пассажиров {direction.NumberOfPassengers})!");
+        Console.WriteLine($"Мест в поезде достаточно, чтобы отправить рейс(Мест {_numberOfseats} / Пассажиров {countOfPassengers})!");
     }
 
     private void AddLittleWagon()
@@ -410,5 +391,31 @@ class BigWagon : Wagon
     {
         Type = "Большой вагон.";
         NumberOfSeats = 54;
+    }
+}
+
+static class UserUtils
+{
+    public static int GetNumber()
+    {
+        bool isNumberWork = true;
+        int userNumber = 0;
+
+        while (isNumberWork)
+        {
+            bool isNumber = true;
+            string userInput = Console.ReadLine();
+
+            if (isNumber = int.TryParse(userInput, out int number))
+            {
+                userNumber = number;
+                isNumberWork = false;
+            }
+            else
+            {
+                Console.WriteLine($"Не правильный ввод данных!!!  Повторите попытку");
+            }
+        }
+        return userNumber;
     }
 }
