@@ -6,7 +6,11 @@
         Operator tripOperator = new Operator();
 
         bool isWork = true;
-        const int Key1 = 1, Key2 = 2, Key3 = 3, Key4 = 4, Key5 = 5;
+        const int KeyForCommand1 = 1; 
+        const int KeyForCommand2 = 2;
+        const int KeyForCommand3 = 3;
+        const int KeyForCommand4 = 4;
+        const int KeyForCommand5 = 5;
 
         Console.WriteLine("Добро пожаловать в конфигуратор поездов!");
 
@@ -26,19 +30,19 @@
 
             switch (userNumber)
             {
-                case Key1:
+                case KeyForCommand1:
                     tripOperator.CreateDirection();
                     break;
-                case Key2:
+                case KeyForCommand2:
                     tripOperator.TakePassengersToDirection(boxOffice);
                     break;
-                case Key3:
+                case KeyForCommand3:
                     tripOperator.FormTrain();
                     break;
-                case Key4:
+                case KeyForCommand4:
                     tripOperator.SendTrip();
                     break;
-                case Key5:
+                case KeyForCommand5:
                     isWork = false;
                     break;
                 default:
@@ -211,8 +215,6 @@ class Operator
         }
     }
 
-    
-
     private string GetCity()
     {
         bool isCity = false;
@@ -304,17 +306,19 @@ class Train
                 $"3. Добавить {bigWagon.Type} (+{bigWagon.NumberOfSeats} мест)");
 
             int userInput = UserUtils.GetNumber();
-            const int Key1 = 1, Key2 = 2, Key3 = 3;
+            const int KeyForCommand1 = 1;
+            const int KeyForCommand2 = 2;
+            const int KeyForCommand3 = 3;
 
             switch (userInput)
             {
-                case Key1:
+                case KeyForCommand1:
                     AddLittleWagon();
                     break;
-                case Key2:
+                case KeyForCommand2:
                     AddMiddleWagon();
                     break;
-                case Key3:
+                case KeyForCommand3:
                     AddBigWagon();
                     break;
                 default:
@@ -416,6 +420,7 @@ static class UserUtils
                 Console.WriteLine($"Не правильный ввод данных!!!  Повторите попытку");
             }
         }
+
         return userNumber;
     }
 }
