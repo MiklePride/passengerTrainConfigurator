@@ -31,7 +31,7 @@
             switch (userNumber)
             {
                 case KeyForCommand1:
-                    tripOperator.CreateDirection();
+                    tripOperator.MakeDirection();
                     break;
                 case KeyForCommand2:
                     tripOperator.TakePassengersToDirection(boxOffice);
@@ -108,7 +108,7 @@ class Operator
         _cities.Add(8, "Алма-Ата");
     }
 
-    public void CreateDirection()
+    public void MakeDirection()
     {
         if (_hasDirectionBeenCreated == false)
         {
