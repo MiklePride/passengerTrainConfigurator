@@ -2,47 +2,32 @@
 {
     static void Main(string[] args)
     {
-        BoxOffice boxOffice = new BoxOffice();
         Operator tripOperator = new Operator();
 
         bool isWork = true;
-        const int KeyForCommand1 = 1; 
-        const int KeyForCommand2 = 2;
-        const int KeyForCommand3 = 3;
-        const int KeyForCommand4 = 4;
-        const int KeyForCommand5 = 5;
 
         Console.WriteLine("Добро пожаловать в конфигуратор поездов!");
 
         while (isWork)
         {
             tripOperator.ShowTrip();
-            Console.WriteLine("\n\n\n");
 
+            Console.WriteLine("\n");
             Console.WriteLine("Выбирите действие:\n" +
-            "1. Создать направление.\n" +
-            "2. Продать билеты.\n" +
-            "3. Сформировать поезд.\n" +
-            "4. Отправить рейс.\n" +
-            "5. Выход.");
+            "1. Создать рейс.\n" +
+            "2. Выход.");
 
-            int userNumber = UserUtils.GetNumber();
+            string userInput = Console.ReadLine();
 
-            switch (userNumber)
+            switch (userInput)
             {
-                case KeyForCommand1:
+                case "1":
                     tripOperator.MakeDirection();
-                    break;
-                case KeyForCommand2:
-                    tripOperator.TakePassengersToDirection(boxOffice);
-                    break;
-                case KeyForCommand3:
+                    tripOperator.TakePassengersToDirection();
                     tripOperator.FormTrain();
-                    break;
-                case KeyForCommand4:
                     tripOperator.SendTrip();
                     break;
-                case KeyForCommand5:
+                case "2":
                     isWork = false;
                     break;
                 default:
@@ -81,115 +66,71 @@ class Trip
 
 class Operator
 {
-    private Dictionary<int, string> _cities = new Dictionary<int, string>();
+    private List<string> _cities = new List<string>();
     private List<Trip> _trips = new List<Trip>();
     private Direction _direction;
     private Train _train;
-
-    private bool _hasDirectionBeenCreated;
-    private bool _haveTicketsBeenSold;
-    private bool _isTrainFormed;
+    private BoxOffice _boxOffice = new BoxOffice();
 
     private int _countOfPassengers;
 
     public Operator()
     {
-        _hasDirectionBeenCreated = false;
-        _haveTicketsBeenSold = false;
-        _isTrainFormed = false;
-
-        _cities.Add(1, "Москва");
-        _cities.Add(2, "Казань");
-        _cities.Add(3, "Иркутск");
-        _cities.Add(4, "Санкт-Петербург");
-        _cities.Add(5, "Ростов");
-        _cities.Add(6, "Тамбов");
-        _cities.Add(7, "Рязань");
-        _cities.Add(8, "Алма-Ата");
+        _cities.Add("Москва");
+        _cities.Add("Казань");
+        _cities.Add("Иркутск");
+        _cities.Add("Санкт-Петербург");
+        _cities.Add("Ростов");
+        _cities.Add("Тамбов");
+        _cities.Add("Рязань");
+        _cities.Add("Алма-Ата");
     }
 
     public void MakeDirection()
     {
-        if (_hasDirectionBeenCreated == false)
-        {
-            bool isWork = true;
-            string cityOfDeparture;
-            string cityOfDestination;
+        bool isWork = true;
+        string cityOfDeparture;
+        string cityOfDestination;
 
-            while (isWork)
+        while (isWork)
+        {
+            ShowCities();
+
+            Console.Write($"Введите номер города в качестве точки отправления: ");
+            cityOfDeparture = GetCity();
+
+            Console.Write($"Введите номер города в качестве точки назначения: ");
+            cityOfDestination = GetCity();
+
+            if (cityOfDeparture != cityOfDestination)
             {
-                ShowCities();
-
-                Console.Write($"Введите номер города в качестве точки отправления: ");
-                cityOfDeparture = GetCity();
-
-                Console.Write($"Введите номер города в качестве точки назначения: ");
-                cityOfDestination = GetCity();
-
-                if (cityOfDeparture != cityOfDestination)
-                {
-                    _direction = new Direction(cityOfDeparture, cityOfDestination);
-                    _hasDirectionBeenCreated = true;
-                    isWork = false;
-                    Console.WriteLine("Направление успешно создано!");
-                }
-                else
-                {
-                    Console.WriteLine("Город отправления не может быть городом назначения! Повторите попытку.");
-                }
+                _direction = new Direction(cityOfDeparture, cityOfDestination);
+                isWork = false;
+                Console.WriteLine("Направление успешно создано!");
             }
-        }
-        else
-        {
-            Console.WriteLine("Направление уже создано! Чтобы создать новый, завершите создание рейса.");
+            else
+            {
+                Console.WriteLine("Город отправления не может быть городом назначения! Повторите попытку.");
+            }
         }
     }
 
-    public void TakePassengersToDirection(BoxOffice boxOffice)
+    public void TakePassengersToDirection()
     {
-        if (_hasDirectionBeenCreated == true)
-        {
-            _countOfPassengers = boxOffice.SellTickets();
-            _haveTicketsBeenSold = true;
-            Console.WriteLine($"На направление: {_direction.PointOfDeparture} - {_direction.PointOfDestination} купили {_countOfPassengers} билетов.");
-        }
-        else
-        {
-            Console.WriteLine("Чтобы продать билеты сначала создайте направление!");
-        }
+        _countOfPassengers = _boxOffice.SellTickets();
+        Console.WriteLine($"На направление: {_direction.PointOfDeparture} - {_direction.PointOfDestination} купили {_countOfPassengers} билетов.");
+        Console.ReadKey();
     }
 
     public void FormTrain()
     {
-        if (_haveTicketsBeenSold == true && _isTrainFormed == false)
-        {
-            _train = new Train();
-            _train.Form(_countOfPassengers);
-            _isTrainFormed = true;
-        }
-        else if (_haveTicketsBeenSold == true && _isTrainFormed == true)
-        {
-            Console.WriteLine("Поезд уже сформирован! Отправьте рейс, чтобы сформировать новый!");
-        }
-        else
-        {
-            Console.WriteLine("Сначала создайте направление и продайте билеты на него!");
-        }
+        _train = new Train();
+        _train.Form(_countOfPassengers);
     }
 
     public void SendTrip()
     {
-        if (_isTrainFormed == true)
-        {
-            _trips.Add(new Trip(_direction, _train, _countOfPassengers));
-            _hasDirectionBeenCreated = false;
-            _haveTicketsBeenSold = false;
-            _isTrainFormed = false;
-        }
-        else
-        {
-            Console.WriteLine("Чтобы отправить рейс сформируйте поезд!");
-        }
+        _trips.Add(new Trip(_direction, _train, _countOfPassengers));
     }
 
     public void ShowTrip()
@@ -209,9 +150,11 @@ class Operator
 
     private void ShowCities()
     {
+        int cityCount = 0;
         foreach (var city in _cities)
         {
-            Console.WriteLine($"{city.Key}. {city.Value}");
+            cityCount++;
+            Console.WriteLine($"{cityCount}) {city}.");
         }
     }
 
@@ -224,15 +167,16 @@ class Operator
         {
             int numberCity = UserUtils.GetNumber();
 
-            if (_cities.ContainsKey(numberCity))
+            if (numberCity - 1 < 0 || numberCity - 1 > _cities.Count)
             {
-                nameCity = _cities[numberCity];
-                isCity = true;
+                Console.WriteLine("Города под таким номером нет! Повторите попытку.");
             }
             else
             {
-                Console.WriteLine("Города под таким номером нет! Повторите попытку...");
+                nameCity = _cities[numberCity - 1];
+                isCity = true;
             }
+
         }
         return nameCity;
     }
@@ -242,7 +186,7 @@ class Direction
 {
     public string PointOfDeparture { get; private set; }
     public string PointOfDestination { get; private set; }
-    
+
 
     public Direction(string pointOfDeparture, string pointOfDestination)
     {
@@ -258,30 +202,30 @@ class Direction
 
 class BoxOffice
 {
-    public int Ticket { get; private set; }
+    private int _tickets;
 
     public int SellTickets()
     {
         Random random = new Random();
-        Ticket = random.Next(80, 300);
+        _tickets = random.Next(80, 300);
 
-        return Ticket;
+        return _tickets;
     }
 }
 
 class Train
 {
     private int _numberOfseats;
-    private List<Wagon> _wagonList = new List<Wagon>();
+    private List<Wagon> _wagons = new List<Wagon>();
 
     public void ShowInfo()
     {
 
-        if (_wagonList.Count > 0)
+        if (_wagons.Count > 0)
         {
             int numberOfWagon = 0;
 
-            foreach (Wagon wagon in _wagonList)
+            foreach (Wagon wagon in _wagons)
             {
                 numberOfWagon++;
             }
@@ -305,20 +249,17 @@ class Train
                 $"2. Добавить {middleWagon.Type} (+{middleWagon.NumberOfSeats} мест)\n" +
                 $"3. Добавить {bigWagon.Type} (+{bigWagon.NumberOfSeats} мест)");
 
-            int userInput = UserUtils.GetNumber();
-            const int KeyForCommand1 = 1;
-            const int KeyForCommand2 = 2;
-            const int KeyForCommand3 = 3;
+            string userInput = Console.ReadLine();
 
             switch (userInput)
             {
-                case KeyForCommand1:
+                case "1":
                     AddLittleWagon();
                     break;
-                case KeyForCommand2:
+                case "2":
                     AddMiddleWagon();
                     break;
-                case KeyForCommand3:
+                case "3":
                     AddBigWagon();
                     break;
                 default:
@@ -331,19 +272,19 @@ class Train
 
     private void AddLittleWagon()
     {
-        _wagonList.Add(new LittleWagon());
+        _wagons.Add(new LittleWagon());
         CountNumberOfSeats();
     }
 
     private void AddMiddleWagon()
     {
-        _wagonList.Add(new MiddleWagon());
+        _wagons.Add(new MiddleWagon());
         CountNumberOfSeats();
     }
 
     private void AddBigWagon()
     {
-        _wagonList.Add(new BigWagon());
+        _wagons.Add(new BigWagon());
         CountNumberOfSeats();
     }
 
@@ -351,7 +292,7 @@ class Train
     {
         int sumNumberOfSeats = 0;
 
-        foreach (var wagon in _wagonList)
+        foreach (var wagon in _wagons)
         {
             sumNumberOfSeats += wagon.NumberOfSeats;
         }
