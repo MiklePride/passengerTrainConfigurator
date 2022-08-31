@@ -187,7 +187,6 @@ class Direction
     public string PointOfDeparture { get; private set; }
     public string PointOfDestination { get; private set; }
 
-
     public Direction(string pointOfDeparture, string pointOfDestination)
     {
         PointOfDeparture = pointOfDeparture;
